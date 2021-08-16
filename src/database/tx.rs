@@ -91,13 +91,13 @@ impl<'coll, 'db> Drop for Transaction<'coll, 'db> {
 impl<'coll, 'db> Transaction<'coll, 'db> {
     fn new(coll: &'coll Collection<'db>) -> Result<Transaction<'coll, 'db>> {
         if unsafe { ejdb_sys::ejdbtranbegin(coll.coll) } {
-            coll.db.last_error("error opening transaction")
-        } else {
             Ok(Transaction {
                 coll: coll,
                 commit: false,
                 finished: false,
             })
+        } else {
+            coll.db.last_error("error opening transaction")
         }
     }
 

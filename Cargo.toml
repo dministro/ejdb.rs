@@ -18,10 +18,10 @@ name = "ejdb"
 [dependencies]
 ejdb-sys = { path = "ejdb-sys", version = "0.3" }
 bson = "0.13"
-bitflags = "1.0"
+bitflags = "1.3.1"
 quick-error = "1.2"
-libc = "0.2"
-itertools = "0.8"
+libc = "0.2.99"
+itertools = "0.10.1"
 
 [dev-dependencies]
-tempdir = "0.3"
+tempdir = "0.3.7"

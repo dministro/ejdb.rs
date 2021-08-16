@@ -80,7 +80,7 @@ pub struct EjdbObjectId(ejdb_sys::bson_oid_t);
 impl EjdbObjectId {
     #[inline]
     pub fn empty() -> EjdbObjectId {
-        let empty_arr: [i8; 12] = [0; 12];
+        let empty_arr: [u8; 12] = [0; 12];
         EjdbObjectId(ejdb_sys::bson_oid_t { bytes: empty_arr })
     }
 
@@ -88,7 +88,7 @@ impl EjdbObjectId {
     pub fn to_rust(self) -> oid::ObjectId {
         let bytes: [i8; 12];
         unsafe {
-            bytes = (self.0).bytes;
+            bytes = to_i((self.0).bytes);
         }
         oid::ObjectId::with_bytes(to_u(bytes))
     }
@@ -96,7 +96,7 @@ impl EjdbObjectId {
     #[inline]
     pub fn from_rust(oid: oid::ObjectId) -> EjdbObjectId {
         EjdbObjectId(ejdb_sys::bson_oid_t {
-            bytes: to_i(oid.bytes()),
+            bytes: oid.bytes(),
         })
     }
 
