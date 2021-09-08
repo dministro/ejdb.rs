@@ -213,10 +213,15 @@
 extern crate bitflags;
 #[macro_use]
 extern crate quick_error;
-pub extern crate bson as bson_crate;
+#[cfg(feature = "bson_0_13")]
+pub extern crate dep_bson_0_13 as bson_crate;
+#[cfg(feature = "bson_1_2")]
+pub extern crate dep_bson_1_2 as bson_crate;
 pub extern crate ejdb_sys;
 extern crate itertools;
 extern crate libc;
+#[cfg(test)]
+extern crate byteorder;
 
 /// A reexport of `bson` crate used by this crate in public interface.
 pub use bson_crate as bson;

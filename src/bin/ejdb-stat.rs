@@ -1,4 +1,7 @@
-extern crate bson;
+#[cfg(feature = "bson_0_13")]
+pub extern crate dep_bson_0_13 as bson;
+#[cfg(feature = "bson_1_2")]
+pub extern crate dep_bson_1_2 as bson;
 extern crate ejdb;
 
 use std::env;

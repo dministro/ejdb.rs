@@ -17,11 +17,18 @@ name = "ejdb"
 
 [dependencies]
 ejdb-sys = { path = "ejdb-sys", version = "0.3" }
-bson = "0.13"
 bitflags = "1.3.1"
 quick-error = "1.2"
 libc = "0.2.99"
 itertools = "0.10.1"
+dep_bson_0_13 = { package = "bson", version = "0.13", optional = true }
+dep_bson_1_2 = { package = "bson", version = "1.2", optional = true }
 
 [dev-dependencies]
 tempdir = "0.3.7"
+byteorder = "1.4.3"
+
+[features]
+default = ['bson_1_2']
+bson_0_13 = ['dep_bson_0_13']
+bson_1_2 = ['dep_bson_1_2']

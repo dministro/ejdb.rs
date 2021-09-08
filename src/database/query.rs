@@ -6,6 +6,8 @@ use std::ops::{Deref, DerefMut};
 use bson::{Bson, Document};
 
 use utils::bson::BsonNumber;
+#[cfg(test)]
+use byteorder::{ByteOrder, BigEndian};
 
 /// A container of EJDB query options.
 ///
@@ -1195,11 +1197,30 @@ mod tests {
 
     #[test]
     fn test_field_eq() {
+        #[cfg(feature = "bson_1_2")]
+        fn with_timestamp(time: u32) -> ObjectId {
+            let mut buf: [u8; 12] = [0; 12];
+            BigEndian::write_u32(&mut buf, time);
+            ObjectId::with_bytes(buf)
+        }
+
+        #[cfg(feature = "bson_0_13")]
         let q = Q.field("_id").eq(ObjectId::with_timestamp(128)).into_bson();
+        #[cfg(feature = "bson_1_2")]
+        let q = Q.field("_id").eq(with_timestamp(128)).into_bson();
+
+        #[cfg(feature = "bson_0_13")]
         assert_eq!(
             q,
             bson! {
                 "_id" => (ObjectId::with_timestamp(128))
+            }
+        );
+        #[cfg(feature = "bson_1_2")]
+        assert_eq!(
+            q,
+            bson! {
+                "_id" => (with_timestamp(128))
             }
         );
     }

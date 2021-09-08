@@ -66,6 +66,16 @@ impl fmt::Display for PartialSave {
     }
 }
 
+#[cfg(feature = "bson_0_13")]
+type BsonEncoderError = bson::EncoderError;
+#[cfg(feature = "bson_0_13")]
+type BsonDecoderError = bson::DecoderError;
+
+#[cfg(feature = "bson_1_2")]
+type BsonEncoderError = bson::ser::Error;
+#[cfg(feature = "bson_1_2")]
+type BsonDecoderError = bson::de::Error;
+
 quick_error! {
     /// The main error type used in the library.
     #[derive(Debug)]
@@ -78,14 +88,14 @@ quick_error! {
             cause(err)
         }
         /// BSON encoding error (when converting Rust BSON representation to the EJDB one).
-        BsonEncoding(err: bson::EncoderError) {
+        BsonEncoding(err: BsonEncoderError) {
             from()
             description("BSON encoding error")
             display("BSON encoding error: {}", err)
             cause(err)
         }
         /// BSON decoding error (when converting to Rust BSON representation from the EJDB one).
-        BsonDecoding(err: bson::DecoderError) {
+        BsonDecoding(err: BsonDecoderError) {
             from()
             description("BSON decoding error")
             display("BSON decoding error: {}", err)

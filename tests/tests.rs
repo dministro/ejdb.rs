@@ -1,6 +1,9 @@
 #[macro_use(bson)]
 extern crate ejdb;
-extern crate bson;
+#[cfg(feature = "bson_0_13")]
+pub extern crate dep_bson_0_13 as bson;
+#[cfg(feature = "bson_1_2")]
+pub extern crate dep_bson_1_2 as bson;
 extern crate tempdir;
 
 use tempdir::TempDir;
@@ -153,17 +156,33 @@ fn test_query() {
             bson!{ "title" => "Baz", "subobj" => { "key" => "a", "xyz" => 632 } },
         ]).unwrap();
 
+    #[cfg(feature = "bson_0_13")]
     let n_foo = coll
         .query(
             Q.field("name").eq(("Foo".to_owned(), "".to_owned())),
             QH.empty(),
         ).count()
         .unwrap();
+    #[cfg(feature = "bson_1_2")]
+    let n_foo = coll
+        .query(
+            Q.field("name").eq(bson::Regex { pattern: "Foo".to_owned(), options: "".to_owned() }),
+            QH.empty(),
+        ).count()
+        .unwrap();
     assert_eq!(n_foo, 3);
 
+    #[cfg(feature = "bson_0_13")]
     let n_bar = coll
         .query(
             Q.field("name").eq(("Bar".to_owned(), "".to_owned())),
+            QH.empty(),
+        ).count()
+        .unwrap();
+    #[cfg(feature = "bson_1_2")]
+    let n_bar = coll
+        .query(
+            Q.field("name").eq(bson::Regex { pattern: "Bar".to_owned(), options: "".to_owned() }),
             QH.empty(),
         ).count()
         .unwrap();

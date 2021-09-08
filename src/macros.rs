@@ -16,7 +16,10 @@
 /// let mut d1 = Document::new();
 /// d1.insert("a", -123i32);
 /// d1.insert("b", "hello");
+/// #[cfg(feature = "bson_0_13")]
 /// d1.insert("c", vec![Bson::I32(456), Bson::FloatingPoint(12.3)]);
+/// #[cfg(feature = "bson_1_2")]
+/// d1.insert("c", vec![Bson::Int32(456), Bson::Double(12.3)]);
 /// let mut d2 = Document::new();
 /// d2.insert("x", 897);
 /// d2.insert("y", "world");
@@ -41,7 +44,10 @@
 /// use ejdb::bson::Bson;
 ///
 /// # fn main() {
+/// #[cfg(feature = "bson_0_13")]
 /// let arr = vec![Bson::I64(1_024_000), Bson::String("hello".into())];
+/// #[cfg(feature = "bson_1_2")]
+/// let arr = vec![Bson::Int64(1_024_000), Bson::String("hello".into())];
 /// assert_eq!(arr, bson![1_024_000_i64, "hello"]);
 /// # }
 /// ```
@@ -54,6 +60,7 @@
 ///
 /// # fn main() {
 /// assert_eq!(bson!("hello world"), Bson::String("hello world".into()));
+/// #[cfg(feature = "bson_0_13")]
 /// assert_eq!(bson!(("[ab]+".to_owned(), "i".to_owned())), Bson::RegExp("[ab]+".into(), "i".into()));
 /// assert_eq!(bson!(true), Bson::Boolean(true));
 /// # }

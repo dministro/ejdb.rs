@@ -9,8 +9,16 @@
 use std::slice;
 
 use bson::oid;
+#[cfg(feature = "bson_0_13")]
 use bson::{self, DecoderResult, Document, EncoderResult};
+#[cfg(feature = "bson_1_2")]
+use bson::{self, Document};
 use ejdb_sys;
+
+#[cfg(feature = "bson_1_2")]
+type DecoderResult<T> = bson::de::Result<T>;
+#[cfg(feature = "bson_1_2")]
+type EncoderResult<T> = bson::ser::Result<T>;
 
 pub struct EjdbBsonDocument(*mut ejdb_sys::bson);
 
@@ -44,15 +52,33 @@ impl EjdbBsonDocument {
 
     pub fn from_bson(bson: &Document) -> EncoderResult<EjdbBsonDocument> {
         let mut buffer = Vec::new();
-        bson::encode_document(&mut buffer, bson).map(|_| EjdbBsonDocument::from_buffer(&buffer))
+
+        #[cfg(feature = "bson_0_13")]
+        let ret = bson::encode_document(&mut buffer, bson).map(|_| EjdbBsonDocument::from_buffer(&buffer));
+        #[cfg(feature = "bson_1_2")]
+        let ret = bson.to_writer(&mut buffer).map(|_| EjdbBsonDocument::from_buffer(&buffer));
+
+        ret
     }
 
     pub fn to_bson(&self) -> DecoderResult<Document> {
         let buf_ptr = unsafe { ejdb_sys::bson_data(self.0 as *const _) as *const u8 };
         let buf_size = unsafe { ejdb_sys::bson_size(self.0 as *const _) };
 
+        #[cfg(feature = "bson_0_13")]
         let mut buf = unsafe { slice::from_raw_parts(buf_ptr, buf_size as usize) };
-        bson::decode_document(&mut buf)
+        #[cfg(feature = "bson_1_2")]
+        let buf = unsafe { slice::from_raw_parts(buf_ptr, buf_size as usize) };
+
+        #[cfg(feature = "bson_0_13")]
+        let ret = bson::decode_document(&mut buf);
+        #[cfg(feature = "bson_1_2")]
+        let ret = {
+            let mut reader = std::io::Cursor::new(buf);
+            bson::Document::from_reader(&mut reader)
+        };
+
+        ret
     }
 
     #[inline]

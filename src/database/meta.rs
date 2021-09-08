@@ -14,7 +14,11 @@ use std::result;
 use std::slice;
 use std::str::FromStr;
 
+#[cfg(feature = "bson_0_13")]
 use bson::{Bson, Document, ValueAccessError};
+#[cfg(feature = "bson_1_2")]
+use bson::{Bson, Document, document::ValueAccessError};
+
 use ejdb_sys;
 
 use super::Database;

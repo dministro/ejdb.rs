@@ -840,7 +840,10 @@ where
         let hints = self.hints.borrow().as_bson();
 
         let mut query_doc = Vec::new();
+        #[cfg(feature = "bson_0_13")]
         bson::encode_document(&mut query_doc, query)?;
+        #[cfg(feature = "bson_1_2")]
+        query.to_writer(&mut query_doc)?;
 
         let query =
             unsafe { ejdb_sys::ejdbcreatequery2(self.coll.db.0, query_doc.as_ptr() as *const _) };
@@ -861,7 +864,10 @@ where
 
         if !hints.is_empty() {
             query_doc.clear();
+            #[cfg(feature = "bson_0_13")]
             bson::encode_document(&mut query_doc, hints)?;
+            #[cfg(feature = "bson_1_2")]
+            hints.to_writer(&mut query_doc)?;
 
             let new_query = unsafe {
                 ejdb_sys::ejdbqueryhints(self.coll.db.0, query.0, query_doc.as_ptr() as *const _)
@@ -940,8 +946,21 @@ impl Iterator for QueryResult {
         }
         self.current += 1;
 
+        #[cfg(feature = "bson_0_13")]
         let mut data = unsafe { slice::from_raw_parts(item, item_size as usize) };
-        Some(bson::decode_document(&mut data).map_err(|e| e.into()))
+        #[cfg(feature = "bson_1_2")]
+        let data = unsafe { slice::from_raw_parts(item, item_size as usize) };
+
+        #[cfg(feature = "bson_0_13")]
+        let ret = Some(bson::decode_document(&mut data).map_err(|e| e.into()));
+
+        #[cfg(feature = "bson_1_2")]
+        let ret = {
+            let mut reader = std::io::Cursor::new(data);
+            Some(bson::Document::from_reader(&mut reader).map_err(|e| e.into()))
+        };
+
+        ret
     }
 }
 
